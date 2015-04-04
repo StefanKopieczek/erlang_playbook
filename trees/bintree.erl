@@ -25,23 +25,15 @@ find({node, _, Left, Right}, Target, Path) ->
     end.
 
 flatten(Tree) -> flatten(Tree, inorder).
-
-flatten(Tree, preorder) -> preorder(Tree);
-flatten(Tree, inorder) -> inorder(Tree);
-flatten(Tree, postorder) -> postorder(Tree).
-
-preorder(leaf) -> [];
-preorder({node, Value, Left, Right}) ->
-    [Value | (preorder(Left) ++ preorder(Right))].
-
-inorder(leaf) -> [];
-inorder({node, Value, Left, Right}) ->
-    inorder(Left) ++ [Value | inorder(Right)].
-
-postorder(leaf) -> [];
-postorder({node, Value, Left, Right}) ->
-    %% Wow, this is inefficient.
-    postorder(Left) ++ postorder(Right) ++ [Value].
+flatten(Tree, Order) -> fold(Tree, fun merge_flattens/2, [], Order).
+merge_flattens(A, B) ->
+    if not(is_list(A)) ->
+        merge_flattens([A], B);
+    not(is_list(B)) ->
+        merge_flattens(A, [B]);
+    true ->
+        A ++ B
+    end.
 
 fold(Tree, Func, Initial, preorder) -> fold_preorder(Tree, Func, Initial);
 fold(Tree, Func, Initial, inorder) -> fold_inorder(Tree, Func, Initial);
